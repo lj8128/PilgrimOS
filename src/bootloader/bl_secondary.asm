@@ -8,8 +8,8 @@ seg_init:
     mov ss, ax
     sti                     ; enable interrupts
 
-stack_init:                 ; position stack regs at end of 50 sectors
-    mov ax, 0x6400
+stack_init:                 ; position stack regs at end of 100 sectors
+    mov ax, 0xC800
     mov bp, ax
     mov sp, ax
 
