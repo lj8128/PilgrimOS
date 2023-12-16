@@ -6,14 +6,12 @@ seg_init:
     cli                     ; disable interrupts 
     mov ax, 0x07C0
     mov ds, ax
-    mov ax, 0x07E0
-    mov es, ax
     sti                     ; enable interrupts
 
 daps:                       ; Disk Address Packet Structure
     size_of_packet          db 0x10
     zero                    db 0
-    num_sectors_to_read     dw 0x64
+    num_sectors_to_read     dw 0x65
     destination_offset      dw 0x0
     destination_segment     dw 0x07E0
     lba_lower_32_bits       dd 1
