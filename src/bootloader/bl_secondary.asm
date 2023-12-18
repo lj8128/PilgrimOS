@@ -21,9 +21,7 @@ main:
     push si
     call print_str
     add sp, 4
-
-    ; jump to tertiary bootloader
-    jmp 0x1460:0             
+    jmp $
 
 hello_world db "Hello World", 0
 
