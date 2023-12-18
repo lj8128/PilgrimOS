@@ -2,7 +2,7 @@
 %define BLH_PRINT
 
 ; print_str(char* s, int strlen(s))
-print_str:
+blh_print_str:
     push bp
     mov bp, sp
     mov si, [bp + 4]        ; si = s
@@ -13,7 +13,7 @@ loop_start:
     je loop_end
     mov di, [si]            ; di = s[dx] 
     push di
-    call print_char
+    call blh_print_char
     add sp, 2
     inc si
     inc dx
@@ -24,7 +24,7 @@ loop_end:
     ret
 
 ; print_char(char c)
-print_char:
+blh_print_char:
     push bp
     mov bp, sp
     mov ax, [bp + 4]        ; effectively moves `c` into al.

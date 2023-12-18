@@ -19,7 +19,7 @@ main:
     mov bx, 11              ; length of "Hello World"
     push bx
     push si
-    call print_str
+    call blh_print_str
     add sp, 4
     jmp $
 
