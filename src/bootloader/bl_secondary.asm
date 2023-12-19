@@ -14,17 +14,19 @@ stack_init:                 ; position stack regs at end of 100 sectors
     mov sp, ax
 
 main:
-    ; print "Hello World"
+    ; set ax = strlen("Hello World")
     mov si, hello_world
-    mov bx, 11              ; length of "Hello World"
-    push bx
     push si
+    call blh_strlen
+    ; print "Hello World"
+    push ax                 ; ax = strlen(hello_world)
     call blh_print_str
     add sp, 4
     jmp $
 
 hello_world db "Hello World", 0
 
+%include "blh_string.asm"
 %include "blh_print.asm"
 
 zero_fill       times 51200-($-$$) db 0
