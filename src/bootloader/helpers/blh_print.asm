@@ -1,8 +1,42 @@
 %ifndef BLH_PRINT
 %define BLH_PRINT
 
-; blh_print_str(char* s, int strlen(s))
+; print '\n\r'
+blh_print_line_terminator:
+    ;prologue
+    push bp
+    mov bp, sp
+
+    mov si, line_terminator
+    push si
+    call blh_print_str
+    add sp, 2
+    
+    ;epilogue
+    mov sp, bp
+    pop bp
+    ret
+
+; blh_print_str(char* s)
 blh_print_str:
+    ;prologue
+    push bp
+    mov bp, sp
+
+    mov cx, [bp + 4]
+    push cx
+    call blh_strlen
+    push ax                 ; ax = strlen(error_msg)
+    call blh_print_str_n
+
+    ;epilogue
+    mov sp, bp
+    pop bp
+    ret
+
+; blh_print_str_n(char* s, int strlen(s))
+
+blh_print_str_n:
     ; prologue
     push bp
     mov bp, sp
@@ -23,6 +57,7 @@ blh_print_str:
     inc dx
     jmp .print_str_loop_start
 .print_str_loop_end:
+    
     ;epilogue
     pop si
     pop di
@@ -41,10 +76,13 @@ blh_print_char:
     mov ah, 0xE
     mov bh, 0
     int 0x10
+
     ;epilogue
     pop bx
     mov sp, bp
     pop bp
     ret
+
+line_terminator db 0xa, 0xd, 0
 
 %endif

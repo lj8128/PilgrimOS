@@ -15,16 +15,14 @@ stack_init:                 ; position stack regs at end of 100 sectors
 
 main:
     ; set ax = strlen("Hello World")
-    mov si, hello_world
+    call blh_print_line_terminator
+    mov si, welcome_msg 
     push si
-    call blh_strlen
-    ; print "Hello World"
-    push ax                 ; ax = strlen(hello_world)
     call blh_print_str
-    add sp, 4
+    add sp, 2
     jmp $
 
-hello_world db "Hello World", 0
+welcome_msg db " Welcome to the text editor!", 0xa, 0xd, 0
 
 %include "blh_string.asm"
 %include "blh_print.asm"

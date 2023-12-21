@@ -5,24 +5,63 @@ BITS 16
 %define DATA_SEG_DEG_OFFSET bld_gdt_data_seg_descriptor - bld_gdt_null_seg_descriptor
 
 seg_init:
-    cli                     ; disable interrupts 
+    cli                         ; disable interrupts 
     mov ax, 0x0
     mov ds, ax
     mov es, ax
     mov ss, ax
-    sti                     ; enable interrupts
+    sti                         ; enable interrupts
 
-stack_init:                 ; initialize bp and sp to bottom of this sector
+stack_init:                     ; initialize bp and sp to bottom of this sector
     mov ax, 0x1FF
     mov bp, ax
     mov sp, ax
 
 read_from_disk_int13ext:
     mov si, bld_daps
-    mov ah, 0x42             ; read from disk (0x42 to read, 0x43 to write)
+    mov ah, 0x42                ; read from disk (0x42 to read, 0x43 to write)
     int 0x13
-    jc print_ERROR
-    ; jmp 0x07E0:0             ; jump to secondary bootloader
+    jc print_disk_read_error
+
+turn_display_page:              ; to clear the startup message from SeaBIOS
+    mov ah, 0x5
+    mov al, 0x1
+    int 0x10
+
+print_welcome_msg:
+    call blh_print_line_terminator
+    mov si, bld_welcome_msg
+    push si
+    call blh_print_str
+    add sp, 2 
+
+print_menu:
+    call blh_print_line_terminator
+    mov si, bld_select_msg 
+    push si
+    call blh_print_str
+    add sp, 2
+    call blh_print_line_terminator
+    mov si, bld_text_editor_option
+    push si
+    call blh_print_str
+    add sp, 2
+    mov si, bld_kernel_option
+    push si
+    call blh_print_str
+    add sp, 2
+
+receive_user_input:
+    mov ah, 0x0 
+    int 0x16
+    cmp al, 0x30             ; check if content(al) == ascii_code('0')
+    je load_real_mode_text_editor
+    cmp al, 0x31             ; check if content(al) == ascii_code('1')
+    je switch_to_protected_mode
+    jmp print_menu
+
+load_real_mode_text_editor:
+    jmp 0x07E0:0              ; jump to secondary bootloader
 
 switch_to_protected_mode:
     ; enable a20 line
@@ -37,16 +76,14 @@ switch_to_protected_mode:
     mov cr0, eax             ; write content of eax to cr0, setting PE bit 
     jmp CODE_SEG_DEG_OFFSET:load_kernel
 
-print_ERROR:
+print_disk_read_error:
     ; set ax = strlen(error_msg)
     mov si, ble_disk_read_error
     push si
-    call blh_strlen
-    ; print error_msg 
-    push ax                 ; ax = strlen(error_msg)
     call blh_print_str
-    add sp, 4
+    add sp, 2
     jmp $
+
 
 %include "blh_string.asm"
 %include "blh_print.asm"
@@ -61,6 +98,7 @@ load_kernel:
     mov eax, 0xcafe
     jmp $
 
+%include "bld_primary.asm"
 %include "ble_primary.asm"
 %include "bld_daps.asm"
 %include "bld_gdt.asm"
