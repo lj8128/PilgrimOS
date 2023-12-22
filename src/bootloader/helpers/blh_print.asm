@@ -85,4 +85,6 @@ blh_print_char:
 
 line_terminator db 0xa, 0xd, 0
 
+%include "blh_string.asm"
+
 %endif

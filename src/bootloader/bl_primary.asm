@@ -17,6 +17,7 @@ stack_init:                     ; initialize bp and sp to bottom of this sector
     mov bp, ax
     mov sp, ax
 
+; load secondary and tertiary bootloaders from hard disk to memory
 read_from_disk_int13ext:
     mov si, bld_daps
     mov ah, 0x42                ; read from disk (0x42 to read, 0x43 to write)
@@ -41,27 +42,26 @@ print_menu:
     push si
     call blh_print_str
     add sp, 2
+
     call blh_print_line_terminator
     mov si, bld_text_editor_option
     push si
     call blh_print_str
     add sp, 2
+
     mov si, bld_kernel_option
     push si
     call blh_print_str
     add sp, 2
 
-receive_user_input:
+process_user_input:
     mov ah, 0x0 
     int 0x16
-    cmp al, 0x30             ; check if content(al) == ascii_code('0')
-    je load_real_mode_text_editor
-    cmp al, 0x31             ; check if content(al) == ascii_code('1')
+    cmp al, 0x30                ; check if content(al) == ascii_code('0')
+    je load_secondary_bootloader
+    cmp al, 0x31                ; check if content(al) == ascii_code('1')
     je switch_to_protected_mode
     jmp print_menu
-
-load_real_mode_text_editor:
-    jmp 0x07E0:0              ; jump to secondary bootloader
 
 switch_to_protected_mode:
     ; enable a20 line
@@ -74,7 +74,7 @@ switch_to_protected_mode:
     mov eax, cr0             ; read content of cr0 to eax             
     or eax, 0x1              ; set bit at 0th place to 1 
     mov cr0, eax             ; write content of eax to cr0, setting PE bit 
-    jmp CODE_SEG_DEG_OFFSET:load_kernel
+    jmp CODE_SEG_DEG_OFFSET:load_tertiary_bootloader
 
 print_disk_read_error:
     ; set ax = strlen(error_msg)
@@ -84,19 +84,19 @@ print_disk_read_error:
     add sp, 2
     jmp $
 
+load_secondary_bootloader:
+    jmp 0x07E0:0              ; jump to secondary bootloader
 
-%include "blh_string.asm"
 %include "blh_print.asm"
 
 BITS 32
 
-load_kernel:
+load_tertiary_bootloader:
     mov ax, DATA_SEG_DEG_OFFSET
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov eax, 0xcafe
-    jmp $
+    jmp 0x13200
 
 %include "bld_primary.asm"
 %include "ble_primary.asm"
