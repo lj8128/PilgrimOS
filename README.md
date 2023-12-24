@@ -1,1 +1,1 @@
-# PilgrimOS
+# pilgrimOS
