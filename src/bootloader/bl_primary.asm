@@ -96,7 +96,7 @@ load_tertiary_bootloader:
     mov ds, ax
     mov es, ax
     mov ss, ax
-    jmp 0x13200
+    jmp 0x0001_3200                ; jump to the beginning of the 91st sector
 
 %include "bld_primary.asm"
 %include "ble_primary.asm"
