@@ -1,6 +1,8 @@
 BITS 32
 
-; TO-DO: Initialize stack
+; The offset of the Code Segment Descriptor in the GDT.
+%define CODE_SEG_DESCR_OFFSET 0x8
+
 stack_init:                     ; initialize bp and sp to bottom of this sector
     mov eax, 0x0001_4400
     mov ebp, eax
@@ -77,6 +79,6 @@ load_kernel_with_pata_interface:
     jmp .poll_pata_drive_status 
 
 .jump_to_kernel:
-    jmp 0x8:0x0010_0000       ; TO-DO change this to jump to the Kernel address
+    jmp CODE_SEG_DESCR_OFFSET:0x0010_0000       
 
 zero_fill times 5120 -($-$$) db 0

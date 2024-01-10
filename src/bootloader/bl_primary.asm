@@ -1,8 +1,8 @@
 ORG 0x07C00
 BITS 16
 
-%define CODE_SEG_DEG_OFFSET bld_gdt_code_seg_descriptor - bld_gdt_null_seg_descriptor
-%define DATA_SEG_DEG_OFFSET bld_gdt_data_seg_descriptor - bld_gdt_null_seg_descriptor
+%define CODE_SEG_DESCR_OFFSET bld_gdt_code_seg_descriptor - bld_gdt_null_seg_descriptor
+%define DATA_SEG_DESCR_OFFSET bld_gdt_data_seg_descriptor - bld_gdt_null_seg_descriptor
 
 seg_init:
     cli                         ; disable interrupts 
@@ -74,7 +74,7 @@ switch_to_protected_mode:
     mov eax, cr0             ; read content of cr0 to eax             
     or eax, 0x1              ; set bit at 0th place to 1 
     mov cr0, eax             ; write content of eax to cr0, setting PE bit 
-    jmp CODE_SEG_DEG_OFFSET:load_tertiary_bootloader
+    jmp CODE_SEG_DESCR_OFFSET:load_tertiary_bootloader
 
 print_disk_read_error:
     ; set ax = strlen(error_msg)
@@ -92,7 +92,7 @@ load_secondary_bootloader:
 BITS 32
 
 load_tertiary_bootloader:
-    mov ax, DATA_SEG_DEG_OFFSET
+    mov ax, DATA_SEG_DESCR_OFFSET
     mov ds, ax
     mov es, ax
     mov ss, ax
